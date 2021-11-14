@@ -159,9 +159,9 @@ var DATA = {
         let collV=this._getCollectionVar(v);
         if(collV!==null) {
           let s=this.assignCollection(collV.var,collVars[collV.var]);
-          e.innerHTML="";
-          while(s.children.length>0) {
-            e.append(s.firstElementChild);
+          e.innerHTML=""; 
+          while(s.children.length>0) { //copy all subchildren to the element
+            e.append(s.firstElementChild); //the first child will be removed from s when append it to e
           }
 
         } else {
