@@ -1,0 +1,35 @@
+<html>
+
+<head>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+
+    <script src="../data.js"></script>
+    
+    <script>
+        DATA.start = function () {
+            DATA.assignCollection("arr", [[1, 2, 3], [5, 6, 7]]);
+        }
+
+    </script>
+</head>
+
+<body>
+    <table style="border: 1px;">
+        <tbody data-var="${arr}[<rows>]">
+            <tr data-var="${rows}[<cols>]">
+                <td>
+                    <data-val data-var="${cols}" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

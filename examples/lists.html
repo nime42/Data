@@ -1,0 +1,26 @@
+<html>
+<head>
+    <script src="../data.js"></script>
+    
+    <script>
+        DATA.start = function () {
+            DATA.assignCollection("list",[{item:"hej",sub:[1,2,3,4]},{item:"hopp",sub:[5,6,7,8]}]);
+        }
+
+    </script>
+</head>
+
+<body>
+    <ul data-var="${list}[<elem>]">
+        <li>
+            <data-val data-var="${elem.item}"></data-val>
+            <ul data-var="${elem.sub}[<sublist>]">
+                <li>
+                    <data-val data-var="${sublist}"/>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</body>
+
+</html>
