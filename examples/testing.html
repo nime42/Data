@@ -1,0 +1,45 @@
+<html>
+
+<head>
+    <style>
+        table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        min-width:2em;
+        min-height: 2em;
+        }
+
+    </style>
+    <script src="../data.js"></script>
+    <script>
+        DATA.start=function() {
+            DATA.assignCollection("arr",[[1,2,3],[5,6,7]]);
+        }
+
+    </script>
+</head>
+
+<body>
+
+<span>
+    <input type="text" data-var="${nr1}" value="2"/>
+
+</span>
+<p>tabell</p>
+
+<!--<tr> <td><data-val data-var="${nr1}"/></td></tr>-->
+
+    <table>
+	<tbody data-var="${arr}[<rows>]"> 
+            <tr data-var="${rows}[<cols>]">
+                    <td>
+                        <data-val data-var="${nr1}+${cols}"/>
+                    </td>
+            </tr>
+	</tbody>
+    </table>
+
+
+</body>
+
+</html>

@@ -73,9 +73,9 @@ var DATA = {
     });
     vars.forEach((v) => {
       if (this.variables[v] === undefined) {
-        this.variables[v] = { updateElems: [] };
+        this.variables[v] = { updateElems: new Set() };
       }
-      this.variables[v].updateElems.push(elem);
+      this.variables[v].updateElems.add(elem);
       if (elem.value != undefined) {
         this.variables[v].value = elem.value;
       }
@@ -99,7 +99,7 @@ var DATA = {
         this._updateElem(u, value);
       });
     } else {
-      this.variables[variable] = { updateElems: [], value: value };
+      this.variables[variable] = { updateElems: new Set(), value: value };
     }
   },
   getValue: function (v) {
@@ -155,29 +155,36 @@ var DATA = {
       }
       let inner = this._parseHtml(coll.template);
       inner.querySelectorAll('[data-var]').forEach(e=>{
-        e["extraVars"]=collVars;
         let v=e.getAttribute("data-var");
         let collV=this._getCollectionVar(v);
         if(collV!==null) {
-          let i=this.assignCollection(collV.var,collVars[collV.var]);
-          e.innerHTML=i.innerHTML;
-          //e.parentNode.replaceChild(i,e);
+          let s=this.assignCollection(collV.var,collVars[collV.var]);
+          e.innerHTML="";
+          while(s.children.length>0) {
+            e.append(s.firstElementChild);
+          }
+
         } else {
           this._updateElem(e,this._evalTemplate(v,collVars));
+          e["extraVars"]=collVars;
+
           let vars = v.match(/\$\{[^\}]*\}/g).map((m) => {
             let g = /\$\{ *([^ \}]*) *\}/.exec(m);
             return g[1];
           });
           vars.forEach(v2=>{
             if(this.variables[v2]?.value) {
-              this.variables[v2].updateElems.push(e);
+              this.variables[v2].updateElems.add(e);
             }
           })
 
         }
-        coll.element.append(inner);
+        
         
       })
+      
+      coll.element.append(inner);
+
     });
     return coll.element;//.cloneNode(true);
 
