@@ -224,7 +224,7 @@ var DATA = {
       );
     }
 
-    if(!parent) {
+    if(!parent || v.collectionIndex===undefined) {
       return v.value;
     } else {
       let e=parent.getElementsByTagName("*")[v.collectionIndex-1];
