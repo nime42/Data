@@ -13,31 +13,45 @@
     <script src="../data.js"></script>
     <script>
         DATA.start=function() {
-            DATA.assignCollection("arr",[[1,2,3],[5,6,7]]);
+            //DATA.assignArray("arr",[[1,2,3],[5,6,7]]);
+            DATA.assignArray("arr2",[{el1:1,el2:2},{el1:3,el2:4}]);
         }
 
     </script>
 </head>
 
 <body>
-
+<!--
 <span>
     <input type="text" data-var="${nr1}" value="2"/>
 
 </span>
 <p>tabell</p>
 
-<!--<tr> <td><data-val data-var="${nr1}"/></td></tr>-->
-
     <table>
 	<tbody data-var="${arr}[<rows>]"> 
-            <tr data-var="${rows}[<cols>]">
+            <tr data-var="${rows}[<col>]">
                     <td>
-                        <data-val data-var="${nr1}+${cols}"/>
+                         
+                        <data-val data-var="${col}"/>
+                        
                     </td>
             </tr>
 	</tbody>
     </table>
+
+-->
+<input type="text" data-var="${nr1}" value="2"/>
+
+    <div data-var="${arr2}[<ps>]">
+        <!--<p><data-val data-var="${nr1}"></data-val></p>-->
+        <p>
+            <input type="text" data-var="${ps.el1}"/>+
+            <input type="text" data-var="${ps.el2}"/>=
+            <span><data-val data-var="${ps.el1}+${ps.el2}+ ${nr1}"></data-val></span>     
+        </p>
+
+    </div>
 
 
 </body>

@@ -8,9 +8,9 @@ var DATA = {
     let data = elem.getAttribute("data-var");
       if (data) {
         data=this._adjustEnv(env,elem,data);
-        let collectionVar=this._getCollectionVar(data);
-        if(collectionVar) {
-          this._handleCollectionVar(collectionVar.var,collectionVar.indexVar,elem);
+        let arrayVar=this._getArrayVar(data);
+        if(arrayVar) {
+          this._handleArrayVar(arrayVar.var,arrayVar.indexVar,elem);
           return;
         } else {
           this._handleDataVar(data,elem,env);
@@ -25,9 +25,12 @@ var DATA = {
     if(!env) {
       return data;
     } else {
+      console.log(data,env.var,env.fqn, "->");
+      console.log(data.replaceAll(new RegExp("\\{ *"+env.var+"(.*)\\}","g"),"{"+env.fqn+"$1}"));
       elem.setAttribute(
         "data-var",
-        data.replaceAll(env.var,env.fqn)
+        data.replaceAll(new RegExp("\\{ *"+env.var+"(.*)\\}","g"),"{"+env.fqn+"$1}")
+        //replaceAll(new RegExp("{ *"+env.var+" *}","g"),"{"+env.fqn+"}")
       );
       return elem.getAttribute("data-var");
     }
@@ -35,15 +38,15 @@ var DATA = {
     
   },
 
-  _getCollectionVar:function(data) {
-    let collection = /\$\{ *([^ \}]*)\}( *\[ *<([^>]+)> *\])/.exec(data);
-    if (collection != null) {
-      return {var:collection[1],indexVar:collection[3]};
+  _getArrayVar:function(data) {
+    let arr = /\$\{ *([^ \}]*)\}( *\[ *<([^>]+)> *\])/.exec(data);
+    if (arr != null) {
+      return {var:arr[1],indexVar:arr[3]};
     } else {
       return null;
     }
   },
-  _handleCollectionVar: function (collectionVar, indexVar, elem, env) {
+  _handleArrayVar: function (collectionVar, indexVar, elem, env) {
     console.log("_handleCollectionVar",collectionVar, indexVar, elem, env)
 
     if(!env) {
@@ -57,7 +60,7 @@ var DATA = {
       this._findDataVariables(c,env);
     }
     
-    this.collections[collectionVar] = {
+    this.arrays[collectionVar] = {
       indexVar: indexVar,
       template: elem.innerHTML,
       nrOfChildElem:elem.childElementCount,
@@ -79,9 +82,13 @@ var DATA = {
       if (this.variables[v] === undefined) {
         this.variables[v] = { updateElems: new Set(),updateElemsFromIndex:new Set() };
       }
-      this.variables[v].updateElems.add(elem);
+      
       if(env!==undefined) {
+        //if we have an env then the element is in an for the moment non-existens array row.
         this.variables[v].updateElemsFromIndex.add(this._getElemIndex(env.collectionElem,elem));
+      } else {
+        //this variable shoud update this elem.
+        this.variables[v].updateElems.add(elem);
       }
       if (elem.value != undefined) {
         this.variables[v].value = elem.value;
@@ -95,6 +102,8 @@ var DATA = {
     });
     if(env!==undefined) {
       if(vars.length===1 && data.match(/^ *\$\{[^\}]+\} *$/)) {
+        //if data is just a single variable, save it's position in parent
+
         this.variables[vars[0]].collectionIndex=this._getElemIndex(env.collectionElem,elem);
       }
     }
@@ -107,7 +116,11 @@ var DATA = {
     if (v) {
       v.value = value;
       v.updateElems.forEach((u) => {
-        value = this._evalTemplate(u.getAttribute("data-var"));
+        let myParent=parent;
+        if(myParent===undefined) {
+          myParent=this._getElemParent(u);
+        }
+        value = this._evalTemplate(u.getAttribute("data-var"),undefined,myParent);
         this._updateElem(u, value);
       });
       let allElems=parent?.getElementsByTagName("*");
@@ -125,7 +138,7 @@ var DATA = {
     return this.variables[v].value;
   },
   getCollectionValue: function(v,index) {
-    let col=this.collections[v];
+    let col=this.arrays[v];
     let elem=col.element;
 
     let start=0;
@@ -151,7 +164,7 @@ var DATA = {
               varName+="."+attribute;
             }
             if(indexVar) {
-              this.collections[varName].element=child;
+              this.arrays[varName].element=child;
               items[varName]=this.getCollectionValue(varName);
             } else {
               if(e.value) {
@@ -235,37 +248,39 @@ var DATA = {
       }
     }
   },
-  assignCollection: function (collectionVar, collection) {
-    let coll = this.collections[collectionVar];
-    if (coll === undefined) {
+  assignArray: function (arrayVar, array) {
+    let arr = this.arrays[arrayVar];
+    if (arr === undefined) {
       throw new Error(
-        "Collection variable " + collectionVar + " doesn't exists"
+        "Collection variable " + arrayVar + " doesn't exists"
       );
     }
-    coll.element.innerHTML='';
-    let collIndexVar=collectionVar+"/"+coll.indexVar;
-    collection.forEach((r,index) => {
-      let collVars={};
+    arr.element.innerHTML='';
+    let arrIndexVar=arrayVar+"/"+arr.indexVar;
+    array.forEach((r,index) => {
+      let arrVars={};
       if(this._isStructureObject(r)) {
         Object.keys(r).forEach(k=>{
-          collVars[collIndexVar+"."+k]=r[k];
+          arrVars[arrIndexVar+"."+k]=r[k];
         })
       } else {
-        collVars[collIndexVar]=r;
+        arrVars[arrIndexVar]=r;
       }
-      let inner = this._parseHtml(coll.template);
+      let inner = this._parseHtml(arr.template);
+      let innerElems=inner.querySelectorAll("*").length;
       inner.querySelectorAll('[data-var]').forEach(e=>{
         let v=e.getAttribute("data-var");
-        let collV=this._getCollectionVar(v);
+        let collV=this._getArrayVar(v);
         if(collV!==null) {
-          let s=this.assignCollection(collV.var,collVars[collV.var]);
+          if(!arrVars[collV.var]) return; //this array have been handled in a subarray, I hope :-/
+          let s=this.assignArray(collV.var,arrVars[collV.var]);
           e.innerHTML=""; 
           while(s.children.length>0) { //copy all subchildren to the element
             e.append(s.firstElementChild); //the first child will be removed from s when append it to e
           }
 
         } else {
-          this._updateElem(e,this._evalTemplate(v,collVars));
+          this._updateElem(e,this._evalTemplate(v,arrVars));
 
           let vars = v.match(/\$\{[^\}]*\}/g).map((m) => {
             let g = /\$\{ *([^ \}]*) *\}/.exec(m);
@@ -280,20 +295,27 @@ var DATA = {
           if (e.onchange !== undefined) {
             if (vars.length === 1) {
               e.addEventListener("change", (evt) => {
-                self.assign(vars[0], evt.target.value,coll.element.children[index]);
+                self.assign(vars[0], evt.target.value,arr.element.children[index]);
               });
             }
-          }
+            e.myParent=0;
+            e.myRow=index*innerElems;
+            let parent=e;
+            while(parent!=null) {
+              parent=parent.parentElement;
+              e.myParent--;
+            }
 
+          }
         }
         
         
       })
       
-      coll.element.append(inner);
+      arr.element.append(inner);
 
     });
-    return coll.element;//.cloneNode(true);
+    return arr.element;//.cloneNode(true);
 
 
   },
@@ -302,9 +324,20 @@ var DATA = {
   _isStructureObject:function(obj) {
     return obj === Object(obj) && !Array.isArray(obj);
   },
+  _getElemParent:function(elem) {
+    if(!elem.myParent) {
+      return undefined;
+    }
+    let parentI=elem.myParent;
+    let parent=elem;
+    while(parentI++<0 && parent!=null) {
+      parent=parent.parentElement;
+    }
+    return parent;
+  },
 
   variables: [],
-  collections: [],
+  arrays: [],
   start:undefined
 };
 

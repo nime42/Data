@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+
+    <script src="../data.js"></script>
+    
+    <script>
+        DATA.start = function () {
+            //DATA.assignArray("arr2", [{type:"t1",rows:[1, 2, 3]}, {type:"t1",rows:[5,6,7]}]);
+            DATA.assignArray("arr1", [[1, 2, 3], [5, 6, 7]]);
+        }
+
+    </script>
+</head>
+
+<body>
+    <!--<table style="border: 1px;">
+        <tbody data-var="${arr2}[<rx>]">
+            <tr data-var="${rx.rows}[<cols>]">
+                <td>
+                    <data-val data-var="${cols}" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>--------</p>-->
+    <table style="border: 1px;">
+        <tbody data-var="${arr1}[<r>]">
+            <tr data-var="${r}[<r2>]">
+                <td>
+                    <data-val data-var="${r2}" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>
