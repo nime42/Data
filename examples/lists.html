@@ -34,21 +34,21 @@
                         ]
                     },
                 ];
-            DATA.assignArray("list",menu);
+            DATA.assignArray("menu",menu);
         }
 
     </script>
 </head>
 
 <body>
-    <ul data-var="${list}[<m1>]">
+    <ul data-var="${menu}[<level1>]">
         <li>
-            <data-val data-var="${m1.menu1}"></data-val>
-            <ul data-var="${m1.submenu1}[<m2>]">
-                <data-val data-var="${m2.menu2}"></data-val>
-                <ul data-var="${m2.submenu2}[<m3>]">
+            <data-val data-var="${level1.menu1}"></data-val>
+            <ul data-var="${level1.submenu1}[<level2>]">
+                <data-val data-var="${level2.menu2}"></data-val>
+                <ul data-var="${level2.submenu2}[<level3>]">
                     <li>
-                        <data-val data-var="${m3}"></data-val>
+                        <data-val data-var="${level3}"></data-val>
                     </li>
                 </ul>
             </ul>
