@@ -6,28 +6,28 @@
             DATA.start = function () {
                 let menu = [
                     {
-                        menu1: "m1",
-                        submenu1: [
+                        menu: "m1",
+                        submenu: [
                             {
-                                menu2: "m3",
-                                submenu2: [
+                                menu: "m3",
+                                submenu: [
                                     5, 6, 7
                                 ]
                             }
                         ]
                     },
                     {
-                        menu1: "m2",
-                        submenu1: [
+                        menu: "m2",
+                        submenu: [
                             {
-                                menu2: "m4",
-                                submenu2: [
+                                menu: "m4",
+                                submenu: [
                                     5, 6, 7
                                 ]
                             },
                             {
-                                menu2: "m5",
-                                submenu2: [
+                                menu: "m5",
+                                submenu: [
                                     5, 6, 7
                                 ]
                             }
@@ -43,10 +43,10 @@
 <body>
     <ul data-var="${menu}[<level1>]">
         <li>
-            <data-val data-var="${level1.menu1}"></data-val>
-            <ul data-var="${level1.submenu1}[<level2>]">
-                <data-val data-var="${level2.menu2}"></data-val>
-                <ul data-var="${level2.submenu2}[<level3>]">
+            <data-val data-var="${level1.menu}"></data-val>
+            <ul data-var="${level1.submenu}[<level2>]">
+                <data-val data-var="${level2.menu}"></data-val>
+                <ul data-var="${level2.submenu}[<level3>]">
                     <li>
                         <data-val data-var="${level3}"></data-val>
                     </li>
